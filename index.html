@@ -79,12 +79,12 @@
 
         <!-- Connection / Storage Mode Badge -->
         <div class="mt-6 pt-4 border-t border-slate-800/80 px-2">
-            <div id="storage-status-badge" class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-slate-800/60 text-xs font-medium text-slate-400 border border-slate-700/50">
+            <div id="storage-status-badge" class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-emerald-500/10 text-xs font-medium text-emerald-400 border border-emerald-500/20">
                 <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                    <span id="storage-status-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span id="storage-status-dot" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <span id="storage-status-text">Modo Local (Demo)</span>
+                <span id="storage-status-text">Firebase Conectado</span>
             </div>
         </div>
     </aside>
@@ -589,16 +589,15 @@
 
 
     <!-- ========================================== -->
-    <!-- JAVASCRIPT LOGIC                           -->
+    <!-- JAVASCRIPT LOGIC (FIREBASE INTEGRATED)     -->
     <!-- ========================================== -->
     <script type="module">
-        // Import Firebase modules if needed, or fallback gracefully
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // APP STATE
-        window.firebaseConnected = false;
         window.db = null;
+        window.firebaseConnected = false;
 
         // Current Selected Dates
         window.currentExpenseDate = new Date();
@@ -607,98 +606,121 @@
         // Data arrays
         window.expensesData = [];
         window.incomesData = [];
-        window.serviceTypesData = ["Consultoria", "Desenvolvimento", "Manutenção", "Design", "Outros"];
+        window.serviceTypesData = [];
+        window.serviceTypesDocs = [];
 
-        // Firebase Configuration Included
+        // Firebase Configuration
         const firebaseConfig = {
-  apiKey: "AIzaSyBSVq96l8qLmT2m27EVjyOHKaeCTxy8TLg",
-  authDomain: "receitasedespesas-26.firebaseapp.com",
-  projectId: "receitasedespesas-26",
-  storageBucket: "receitasedespesas-26.firebasestorage.app",
-  messagingSenderId: "972861479913",
-  appId: "1:972861479913:web:21f5233d05c7f0fa474978"
-};
+            apiKey: "AIzaSyBSVq96l8qLmT2m27EVjyOHKaeCTxy8TLg",
+            authDomain: "receitasedespesas-26.firebaseapp.com",
+            projectId: "receitasedespesas-26",
+            storageBucket: "receitasedespesas-26.firebasestorage.app",
+            messagingSenderId: "972861479913",
+            appId: "1:972861479913:web:21f5233d05c7f0fa474978"
+        };
 
-        // Initialize App & Try Firebase
+        // Initialize App & Firestore
         async function initApp() {
             try {
-                if (firebaseConfig.projectId) {
-                    const app = initializeApp(firebaseConfig);
-                    window.db = getFirestore(app);
-                    window.firebaseConnected = true;
-                    updateStorageBadge(true);
-                    setupFirestoreListeners();
-                } else {
-                    throw new Error("No Firebase config provided");
-                }
+                const app = initializeApp(firebaseConfig);
+                window.db = getFirestore(app);
+                window.firebaseConnected = true;
+                updateStorageBadge(true);
+                setupFirestoreListeners();
             } catch (err) {
-                console.log("Firebase not active. Using LocalStorage fallback mode.");
+                console.error("Erro ao inicializar Firebase:", err);
                 window.firebaseConnected = false;
                 updateStorageBadge(false);
-                loadLocalStorageData();
+                showToast("Falha na conexão com o Firebase", "error");
             }
 
-            renderExpenseModule(getFilteredExpensesForMonth());
-            renderIncomeModule(getFilteredIncomesForMonth());
-            populateServiceTypeDropdowns();
             updateMonthDisplays();
         }
 
         function updateStorageBadge(isOnline) {
             const badgeText = document.getElementById('storage-status-text');
             const badge = document.getElementById('storage-status-badge');
+            const ping = document.getElementById('storage-status-ping');
+            const dot = document.getElementById('storage-status-dot');
+
             if (isOnline) {
-                badgeText.innerText = "Firebase Conectado";
-                badge.className = "flex items-center gap-2.5 px-3 py-2 rounded-lg bg-emerald-500/10 text-xs font-medium text-emerald-400 border border-emerald-500/20";
+                if (badgeText) badgeText.innerText = "Firebase Conectado";
+                if (badge) badge.className = "flex items-center gap-2.5 px-3 py-2 rounded-lg bg-emerald-500/10 text-xs font-medium text-emerald-400 border border-emerald-500/20";
+                if (ping) ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+                if (dot) dot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
             } else {
-                badgeText.innerText = "Modo Local (Demo)";
-                badge.className = "flex items-center gap-2.5 px-3 py-2 rounded-lg bg-amber-500/10 text-xs font-medium text-amber-400 border border-amber-500/20";
+                if (badgeText) badgeText.innerText = "Erro no Firebase";
+                if (badge) badge.className = "flex items-center gap-2.5 px-3 py-2 rounded-lg bg-rose-500/10 text-xs font-medium text-rose-400 border border-rose-500/20";
+                if (ping) ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75";
+                if (dot) dot.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-500";
             }
         }
 
-        // --- LOCAL STORAGE HELPERS ---
-        function loadLocalStorageData() {
-            const exp = localStorage.getItem('fincontrol_expenses');
-            const inc = localStorage.getItem('fincontrol_incomes');
-            const st = localStorage.getItem('fincontrol_servicetypes');
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
 
-            if (exp) window.expensesData = JSON.parse(exp);
-            if (inc) window.incomesData = JSON.parse(inc);
-            if (st) window.serviceTypesData = JSON.parse(st);
-        }
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold text-white shadow-xl transition-all duration-300 transform translate-y-2 opacity-0 ${
+                type === 'error' ? 'bg-rose-600' : type === 'success' ? 'bg-emerald-600' : 'bg-indigo-600'
+            }`;
+            
+            const icon = type === 'error' ? 'fa-circle-xmark' : type === 'success' ? 'fa-circle-check' : 'fa-circle-info';
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
 
-        function saveLocalStorageData() {
-            localStorage.setItem('fincontrol_expenses', JSON.stringify(window.expensesData));
-            localStorage.setItem('fincontrol_incomes', JSON.stringify(window.incomesData));
-            localStorage.setItem('fincontrol_servicetypes', JSON.stringify(window.serviceTypesData));
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
+        window.showToast = showToast;
 
         // --- FIRESTORE LISTENERS ---
         function setupFirestoreListeners() {
+            // Expenses Listener
             onSnapshot(collection(window.db, "expenses"), (snapshot) => {
                 window.expensesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 triggerExpenseRender();
+            }, (error) => {
+                console.error("Erro no listener de despesas:", error);
+                showToast("Erro ao carregar despesas", "error");
             });
 
+            // Incomes Listener
             onSnapshot(collection(window.db, "incomes"), (snapshot) => {
                 window.incomesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 triggerIncomeRender();
+            }, (error) => {
+                console.error("Erro no listener de receitas:", error);
+                showToast("Erro ao carregar receitas", "error");
             });
 
-            onSnapshot(collection(window.db, "servicetypes"), (snapshot) => {
-                if (!snapshot.empty) {
-                    window.serviceTypesData = snapshot.docs.map(doc => doc.data().name);
+            // Service Types Listener
+            onSnapshot(collection(window.db, "servicetypes"), async (snapshot) => {
+                if (snapshot.empty) {
+                    const defaults = ["Consultoria", "Desenvolvimento", "Manutenção", "Design", "Outros"];
+                    for (const name of defaults) {
+                        try {
+                            await addDoc(collection(window.db, "servicetypes"), { name });
+                        } catch (e) {
+                            console.error("Erro ao popular tipo de serviço inicial:", e);
+                        }
+                    }
+                } else {
+                    window.serviceTypesDocs = snapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
+                    window.serviceTypesData = window.serviceTypesDocs.map(d => d.name);
                     populateServiceTypeDropdowns();
                 }
+            }, (error) => {
+                console.error("Erro no listener de tipos de serviço:", error);
             });
         }
-
-        // Initialize on load
-        window.addEventListener('DOMContentLoaded', initApp);
-    </script>
-
-    <script>
-        /* GLOBAL NON-MODULE UI & NAVIGATION LOGIC */
 
         // TAB SWITCHING
         function switchTab(tab) {
@@ -719,12 +741,15 @@
                 expBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
             }
         }
+        window.switchTab = switchTab;
 
         // DATE / MONTH PICKER HELPERS
         function updateMonthDisplays() {
             const options = { month: 'long', year: 'numeric' };
-            document.getElementById('current-expense-month-display').innerText = window.currentExpenseDate.toLocaleDateString('pt-BR', options);
-            document.getElementById('current-income-month-display').innerText = window.currentIncomeDate.toLocaleDateString('pt-BR', options);
+            const expDisplay = document.getElementById('current-expense-month-display');
+            const incDisplay = document.getElementById('current-income-month-display');
+            if (expDisplay) expDisplay.innerText = window.currentExpenseDate.toLocaleDateString('pt-BR', options);
+            if (incDisplay) incDisplay.innerText = window.currentIncomeDate.toLocaleDateString('pt-BR', options);
         }
 
         function changeExpenseMonth(delta) {
@@ -732,24 +757,28 @@
             updateMonthDisplays();
             triggerExpenseRender();
         }
+        window.changeExpenseMonth = changeExpenseMonth;
 
         function resetExpenseToCurrentMonth() {
             window.currentExpenseDate = new Date();
             updateMonthDisplays();
             triggerExpenseRender();
         }
+        window.resetExpenseToCurrentMonth = resetExpenseToCurrentMonth;
 
         function changeIncomeMonth(delta) {
             window.currentIncomeDate.setMonth(window.currentIncomeDate.getMonth() + delta);
             updateMonthDisplays();
             triggerIncomeRender();
         }
+        window.changeIncomeMonth = changeIncomeMonth;
 
         function resetIncomeToCurrentMonth() {
             window.currentIncomeDate = new Date();
             updateMonthDisplays();
             triggerIncomeRender();
         }
+        window.resetIncomeToCurrentMonth = resetIncomeToCurrentMonth;
 
         // DATA FILTERING FOR SELECTED MONTH
         function getFilteredExpensesForMonth() {
@@ -760,7 +789,6 @@
             return (window.expensesData || []).filter(item => {
                 if (!item.dueDate) return false;
                 
-                // Ignorar se este mês específico tiver sido excluído individualmente
                 if (item.deletedMonths && item.deletedMonths.includes(monthKey)) {
                     return false;
                 }
@@ -768,16 +796,13 @@
                 const d = new Date(item.dueDate + 'T00:00:00');
                 
                 if (item.type === 'fixed') {
-                    // Fixed expenses repeat every month after creation
                     return d <= new Date(yr, mo + 1, 0);
                 } else if (item.type === 'installment') {
-                    // Check if installment falls in this month
                     const startYr = d.getFullYear();
                     const startMo = d.getMonth();
                     const monthsDiff = (yr - startYr) * 12 + (mo - startMo);
                     return monthsDiff >= 0 && monthsDiff < item.installmentsCount;
                 } else {
-                    // Single expense
                     return d.getFullYear() === yr && d.getMonth() === mo;
                 }
             }).map(item => {
@@ -798,7 +823,6 @@
             return (window.incomesData || []).filter(item => {
                 if (!item.dueDate) return false;
 
-                // Ignorar se este mês específico tiver sido excluído individualmente
                 if (item.deletedMonths && item.deletedMonths.includes(monthKey)) {
                     return false;
                 }
@@ -828,10 +852,12 @@
         function triggerExpenseRender() {
             renderExpenseModule(getFilteredExpensesForMonth());
         }
+        window.triggerExpenseRender = triggerExpenseRender;
 
         function triggerIncomeRender() {
             renderIncomeModule(getFilteredIncomesForMonth());
         }
+        window.triggerIncomeRender = triggerIncomeRender;
 
         // RENDER EXPENSE MODULE
         function renderExpenseModule(expenses) {
@@ -916,7 +942,7 @@
                         </button>
                     </td>
                     <td class="py-3.5 px-4 text-center space-x-2">
-                        <button onclick='openExpenseModal(${JSON.stringify(item)})' class="text-slate-400 hover:text-indigo-400 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="openExpenseModal('${item.id}')" class="text-slate-400 hover:text-indigo-400 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button onclick="requestDeleteExpense('${item.id}')" class="text-slate-400 hover:text-rose-400 p-1"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
@@ -1052,7 +1078,7 @@
                         </button>
                     </td>
                     <td class="py-3.5 px-4 text-center space-x-2">
-                        <button onclick='openIncomeModal(${JSON.stringify(item)})' class="text-slate-400 hover:text-emerald-400 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="openIncomeModal('${item.id}')" class="text-slate-400 hover:text-emerald-400 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button onclick="requestDeleteIncome('${item.id}')" class="text-slate-400 hover:text-rose-400 p-1"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
@@ -1114,21 +1140,21 @@
 
             if (filterSelect) {
                 filterSelect.innerHTML = '<option value="ALL">Todos os Serviços</option>';
-                window.serviceTypesData.forEach(st => {
+                (window.serviceTypesData || []).forEach(st => {
                     filterSelect.innerHTML += `<option value="${st}">${st}</option>`;
                 });
             }
 
             if (formSelect) {
                 formSelect.innerHTML = '';
-                window.serviceTypesData.forEach(st => {
+                (window.serviceTypesData || []).forEach(st => {
                     formSelect.innerHTML += `<option value="${st}">${st}</option>`;
                 });
             }
 
             if (listContainer) {
                 listContainer.innerHTML = '';
-                window.serviceTypesData.forEach((st, idx) => {
+                (window.serviceTypesData || []).forEach((st, idx) => {
                     listContainer.innerHTML += `
                         <div class="flex justify-between items-center bg-slate-800 px-3 py-2 rounded-xl text-xs text-slate-200">
                             <span>${st}</span>
@@ -1138,37 +1164,58 @@
                 });
             }
         }
+        window.populateServiceTypeDropdowns = populateServiceTypeDropdowns;
 
         function openServiceTypesModal() {
             populateServiceTypeDropdowns();
             document.getElementById('modal-servicetypes').classList.remove('hidden');
         }
+        window.openServiceTypesModal = openServiceTypesModal;
 
         function closeServiceTypesModal() {
             document.getElementById('modal-servicetypes').classList.add('hidden');
         }
+        window.closeServiceTypesModal = closeServiceTypesModal;
 
-        function addServiceType() {
+        async function addServiceType() {
             const input = document.getElementById('new-servicetype-input');
             const val = input.value.trim();
             if (val && !window.serviceTypesData.includes(val)) {
-                window.serviceTypesData.push(val);
-                input.value = '';
-                populateServiceTypeDropdowns();
-                if (!window.firebaseConnected) localStorage.setItem('fincontrol_servicetypes', JSON.stringify(window.serviceTypesData));
+                try {
+                    input.value = '';
+                    await addDoc(collection(window.db, "servicetypes"), { name: val });
+                    showToast("Tipo de serviço adicionado", "success");
+                } catch (err) {
+                    console.error("Erro ao adicionar serviço:", err);
+                    showToast("Erro ao salvar no Firebase", "error");
+                }
             }
         }
+        window.addServiceType = addServiceType;
 
-        function removeServiceType(idx) {
-            window.serviceTypesData.splice(idx, 1);
-            populateServiceTypeDropdowns();
-            if (!window.firebaseConnected) localStorage.setItem('fincontrol_servicetypes', JSON.stringify(window.serviceTypesData));
+        async function removeServiceType(idx) {
+            const stDoc = window.serviceTypesDocs ? window.serviceTypesDocs[idx] : null;
+            if (stDoc) {
+                try {
+                    await deleteDoc(doc(window.db, "servicetypes", stDoc.id));
+                    showToast("Tipo de serviço removido", "success");
+                } catch (err) {
+                    console.error("Erro ao remover serviço:", err);
+                    showToast("Erro ao remover no Firebase", "error");
+                }
+            }
         }
+        window.removeServiceType = removeServiceType;
 
         // EXPENSE MODAL & FORM HANDLERS
-        function openExpenseModal(item = null) {
+        function openExpenseModal(itemOrId = null) {
             const modal = document.getElementById('modal-expense');
             const title = document.getElementById('modal-expense-title');
+
+            let item = itemOrId;
+            if (typeof itemOrId === 'string') {
+                item = window.expensesData.find(x => x.id === itemOrId);
+            }
 
             if (item) {
                 title.innerText = "Editar Despesa";
@@ -1178,6 +1225,9 @@
                 document.getElementById('expense-type').value = item.type;
                 document.getElementById('expense-amount').value = item.totalAmount;
                 document.getElementById('expense-duedate').value = item.dueDate;
+                if (item.type === 'installment') {
+                    document.getElementById('expense-installments-count').value = item.installmentsCount || 2;
+                }
             } else {
                 title.innerText = "Nova Despesa";
                 document.getElementById('form-expense').reset();
@@ -1188,10 +1238,12 @@
             toggleExpenseTypeFields();
             modal.classList.remove('hidden');
         }
+        window.openExpenseModal = openExpenseModal;
 
         function closeExpenseModal() {
             document.getElementById('modal-expense').classList.add('hidden');
         }
+        window.closeExpenseModal = closeExpenseModal;
 
         function toggleExpenseTypeFields() {
             const type = document.getElementById('expense-type').value;
@@ -1202,73 +1254,86 @@
                 instFields.classList.add('hidden');
             }
         }
+        window.toggleExpenseTypeFields = toggleExpenseTypeFields;
 
-        function recalcExpenseInstallments() {
-            // Optional calculations preview
-        }
+        function recalcExpenseInstallments() {}
+        window.recalcExpenseInstallments = recalcExpenseInstallments;
 
-        function handleExpenseSubmit(e) {
+        async function handleExpenseSubmit(e) {
             e.preventDefault();
-            const id = document.getElementById('expense-id').value;
-            const title = document.getElementById('expense-title').value;
-            const category = document.getElementById('expense-category').value;
-            const type = document.getElementById('expense-type').value;
-            const totalAmount = parseFloat(document.getElementById('expense-amount').value);
-            const dueDate = document.getElementById('expense-duedate').value;
+            try {
+                const id = document.getElementById('expense-id').value;
+                const title = document.getElementById('expense-title').value;
+                const category = document.getElementById('expense-category').value;
+                const type = document.getElementById('expense-type').value;
+                const totalAmount = parseFloat(document.getElementById('expense-amount').value);
+                const dueDate = document.getElementById('expense-duedate').value;
 
-            let installmentsCount = 1;
-            let installmentValue = totalAmount;
+                let installmentsCount = 1;
+                let installmentValue = totalAmount;
 
-            if (type === 'installment') {
-                installmentsCount = parseInt(document.getElementById('expense-installments-count').value) || 2;
-                const mode = document.getElementById('expense-installment-mode').value;
-                if (mode === 'per_installment') {
-                    installmentValue = totalAmount;
-                } else {
-                    installmentValue = totalAmount / installmentsCount;
+                if (type === 'installment') {
+                    installmentsCount = parseInt(document.getElementById('expense-installments-count').value) || 2;
+                    const mode = document.getElementById('expense-installment-mode').value;
+                    if (mode === 'per_installment') {
+                        installmentValue = totalAmount;
+                    } else {
+                        installmentValue = totalAmount / installmentsCount;
+                    }
                 }
+
+                const existingItem = id ? window.expensesData.find(x => x.id === id) : null;
+
+                const payload = {
+                    title,
+                    category,
+                    type,
+                    totalAmount,
+                    installmentValue,
+                    installmentsCount,
+                    dueDate,
+                    paidMonths: existingItem ? (existingItem.paidMonths || []) : [],
+                    deletedMonths: existingItem ? (existingItem.deletedMonths || []) : []
+                };
+
+                if (id) {
+                    await updateDoc(doc(window.db, "expenses", id), payload);
+                    showToast("Despesa atualizada com sucesso!", "success");
+                } else {
+                    await addDoc(collection(window.db, "expenses"), payload);
+                    showToast("Despesa salva no Firebase!", "success");
+                }
+
+                closeExpenseModal();
+            } catch (err) {
+                console.error("Erro ao salvar despesa:", err);
+                showToast("Erro ao salvar no Firebase", "error");
             }
-
-            const payload = {
-                title,
-                category,
-                type,
-                totalAmount,
-                installmentValue,
-                installmentsCount,
-                dueDate,
-                paidMonths: []
-            };
-
-            if (id) {
-                // Update
-                const idx = window.expensesData.findIndex(x => x.id === id);
-                if (idx !== -1) window.expensesData[idx] = { ...window.expensesData[idx], ...payload };
-            } else {
-                // Create
-                payload.id = 'exp_' + Date.now();
-                window.expensesData.push(payload);
-            }
-
-            if (!window.firebaseConnected) localStorage.setItem('fincontrol_expenses', JSON.stringify(window.expensesData));
-            closeExpenseModal();
-            triggerExpenseRender();
         }
+        window.handleExpenseSubmit = handleExpenseSubmit;
 
         // INCOME MODAL & FORM HANDLERS
-        function openIncomeModal(item = null) {
+        function openIncomeModal(itemOrId = null) {
             const modal = document.getElementById('modal-income');
             const title = document.getElementById('modal-income-title');
             populateServiceTypeDropdowns();
+
+            let item = itemOrId;
+            if (typeof itemOrId === 'string') {
+                item = window.incomesData.find(x => x.id === itemOrId);
+            }
 
             if (item) {
                 title.innerText = "Editar Receita";
                 document.getElementById('income-id').value = item.id;
                 document.getElementById('income-title').value = item.title;
-                document.getElementById('income-servicetype').value = item.serviceType || window.serviceTypesData[0];
+                document.getElementById('income-servicetype').value = item.serviceType || (window.serviceTypesData[0] || 'Outros');
                 document.getElementById('income-type').value = item.type;
                 document.getElementById('income-amount').value = item.totalAmount;
                 document.getElementById('income-duedate').value = item.dueDate;
+                if (item.type === 'installment') {
+                    document.getElementById('income-installments-count').value = item.installmentsCount || 2;
+                }
             } else {
                 title.innerText = "Nova Receita";
                 document.getElementById('form-income').reset();
@@ -1279,10 +1344,12 @@
             toggleIncomeTypeFields();
             modal.classList.remove('hidden');
         }
+        window.openIncomeModal = openIncomeModal;
 
         function closeIncomeModal() {
             document.getElementById('modal-income').classList.add('hidden');
         }
+        window.closeIncomeModal = closeIncomeModal;
 
         function toggleIncomeTypeFields() {
             const type = document.getElementById('income-type').value;
@@ -1293,55 +1360,63 @@
                 instFields.classList.add('hidden');
             }
         }
+        window.toggleIncomeTypeFields = toggleIncomeTypeFields;
 
-        function handleIncomeSubmit(e) {
+        async function handleIncomeSubmit(e) {
             e.preventDefault();
-            const id = document.getElementById('income-id').value;
-            const title = document.getElementById('income-title').value;
-            const serviceType = document.getElementById('income-servicetype').value;
-            const type = document.getElementById('income-type').value;
-            const totalAmount = parseFloat(document.getElementById('income-amount').value);
-            const dueDate = document.getElementById('income-duedate').value;
+            try {
+                const id = document.getElementById('income-id').value;
+                const title = document.getElementById('income-title').value;
+                const serviceType = document.getElementById('income-servicetype').value;
+                const type = document.getElementById('income-type').value;
+                const totalAmount = parseFloat(document.getElementById('income-amount').value);
+                const dueDate = document.getElementById('income-duedate').value;
 
-            let installmentsCount = 1;
-            let installmentValue = totalAmount;
+                let installmentsCount = 1;
+                let installmentValue = totalAmount;
 
-            if (type === 'installment') {
-                installmentsCount = parseInt(document.getElementById('income-installments-count').value) || 2;
-                const mode = document.getElementById('income-installment-mode').value;
-                if (mode === 'per_installment') {
-                    installmentValue = totalAmount;
-                } else {
-                    installmentValue = totalAmount / installmentsCount;
+                if (type === 'installment') {
+                    installmentsCount = parseInt(document.getElementById('income-installments-count').value) || 2;
+                    const mode = document.getElementById('income-installment-mode').value;
+                    if (mode === 'per_installment') {
+                        installmentValue = totalAmount;
+                    } else {
+                        installmentValue = totalAmount / installmentsCount;
+                    }
                 }
+
+                const existingItem = id ? window.incomesData.find(x => x.id === id) : null;
+
+                const payload = {
+                    title,
+                    serviceType,
+                    type,
+                    totalAmount,
+                    installmentValue,
+                    installmentsCount,
+                    dueDate,
+                    paidMonths: existingItem ? (existingItem.paidMonths || []) : [],
+                    deletedMonths: existingItem ? (existingItem.deletedMonths || []) : []
+                };
+
+                if (id) {
+                    await updateDoc(doc(window.db, "incomes", id), payload);
+                    showToast("Receita atualizada com sucesso!", "success");
+                } else {
+                    await addDoc(collection(window.db, "incomes"), payload);
+                    showToast("Receita salva no Firebase!", "success");
+                }
+
+                closeIncomeModal();
+            } catch (err) {
+                console.error("Erro ao salvar receita:", err);
+                showToast("Erro ao salvar no Firebase", "error");
             }
-
-            const payload = {
-                title,
-                serviceType,
-                type,
-                totalAmount,
-                installmentValue,
-                installmentsCount,
-                dueDate,
-                paidMonths: []
-            };
-
-            if (id) {
-                const idx = window.incomesData.findIndex(x => x.id === id);
-                if (idx !== -1) window.incomesData[idx] = { ...window.incomesData[idx], ...payload };
-            } else {
-                payload.id = 'inc_' + Date.now();
-                window.incomesData.push(payload);
-            }
-
-            if (!window.firebaseConnected) localStorage.setItem('fincontrol_incomes', JSON.stringify(window.incomesData));
-            closeIncomeModal();
-            triggerIncomeRender();
         }
+        window.handleIncomeSubmit = handleIncomeSubmit;
 
         // TOGGLE STATUS (PAID / PENDING)
-        function toggleExpenseStatus(id) {
+        async function toggleExpenseStatus(id) {
             const item = window.expensesData.find(x => x.id === id);
             if (!item) return;
 
@@ -1349,19 +1424,24 @@
             const mo = window.currentExpenseDate.getMonth();
             const monthKey = `${yr}-${String(mo + 1).padStart(2, '0')}`;
 
-            if (!item.paidMonths) item.paidMonths = [];
-
-            if (item.paidMonths.includes(monthKey)) {
-                item.paidMonths = item.paidMonths.filter(m => m !== monthKey);
+            const paidMonths = [...(item.paidMonths || [])];
+            const index = paidMonths.indexOf(monthKey);
+            if (index > -1) {
+                paidMonths.splice(index, 1);
             } else {
-                item.paidMonths.push(monthKey);
+                paidMonths.push(monthKey);
             }
 
-            if (!window.firebaseConnected) localStorage.setItem('fincontrol_expenses', JSON.stringify(window.expensesData));
-            triggerExpenseRender();
+            try {
+                await updateDoc(doc(window.db, "expenses", id), { paidMonths });
+            } catch (err) {
+                console.error("Erro ao alterar status:", err);
+                showToast("Erro ao atualizar status no Firebase", "error");
+            }
         }
+        window.toggleExpenseStatus = toggleExpenseStatus;
 
-        function toggleIncomeStatus(id) {
+        async function toggleIncomeStatus(id) {
             const item = window.incomesData.find(x => x.id === id);
             if (!item) return;
 
@@ -1369,17 +1449,22 @@
             const mo = window.currentIncomeDate.getMonth();
             const monthKey = `${yr}-${String(mo + 1).padStart(2, '0')}`;
 
-            if (!item.paidMonths) item.paidMonths = [];
-
-            if (item.paidMonths.includes(monthKey)) {
-                item.paidMonths = item.paidMonths.filter(m => m !== monthKey);
+            const paidMonths = [...(item.paidMonths || [])];
+            const index = paidMonths.indexOf(monthKey);
+            if (index > -1) {
+                paidMonths.splice(index, 1);
             } else {
-                item.paidMonths.push(monthKey);
+                paidMonths.push(monthKey);
             }
 
-            if (!window.firebaseConnected) localStorage.setItem('fincontrol_incomes', JSON.stringify(window.incomesData));
-            triggerIncomeRender();
+            try {
+                await updateDoc(doc(window.db, "incomes", id), { paidMonths });
+            } catch (err) {
+                console.error("Erro ao alterar status:", err);
+                showToast("Erro ao atualizar status no Firebase", "error");
+            }
         }
+        window.toggleIncomeStatus = toggleIncomeStatus;
 
         // DELETE HANDLERS & MODAL (SMART DELETE)
         function requestDeleteExpense(id) {
@@ -1394,7 +1479,7 @@
 
             if (isMulti) {
                 const labelType = item.type === 'installment' ? 'esta parcela' : 'este mês';
-                msg.innerText = `Este lançamento é ${item.type === 'installment' ? 'parcelado' : 'recorrente'}. Pretende eliminar apenas ${labelType} ou todas as parcelas/registo completo?`;
+                msg.innerText = `Este lançamento é ${item.type === 'installment' ? 'parcelado' : 'recorrente'}. Pretende eliminar apenas ${labelType} ou todas as parcelas/registro completo?`;
                 
                 actions.innerHTML = `
                     <button onclick="confirmDeleteExpenseSingle('${id}')" class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors">Excluir Apenas Esta Parcela (${labelType})</button>
@@ -1402,7 +1487,7 @@
                     <button onclick="closeDeleteModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition-colors mt-1">Cancelar</button>
                 `;
             } else {
-                msg.innerText = "Tem a certeza que pretende eliminar este registo?";
+                msg.innerText = "Tem a certeza que pretende eliminar este registro?";
                 actions.innerHTML = `
                     <button onclick="confirmDeleteExpenseAll('${id}')" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition-colors">Excluir Registro</button>
                     <button onclick="closeDeleteModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition-colors">Cancelar</button>
@@ -1411,31 +1496,43 @@
 
             modal.classList.remove('hidden');
         }
+        window.requestDeleteExpense = requestDeleteExpense;
 
-        function confirmDeleteExpenseSingle(id) {
+        async function confirmDeleteExpenseSingle(id) {
             const item = window.expensesData.find(x => x.id === id);
             if (item) {
                 const yr = window.currentExpenseDate.getFullYear();
                 const mo = window.currentExpenseDate.getMonth();
                 const monthKey = `${yr}-${String(mo + 1).padStart(2, '0')}`;
 
-                if (!item.deletedMonths) item.deletedMonths = [];
-                if (!item.deletedMonths.includes(monthKey)) {
-                    item.deletedMonths.push(monthKey);
+                const deletedMonths = [...(item.deletedMonths || [])];
+                if (!deletedMonths.includes(monthKey)) {
+                    deletedMonths.push(monthKey);
                 }
 
-                if (!window.firebaseConnected) localStorage.setItem('fincontrol_expenses', JSON.stringify(window.expensesData));
+                try {
+                    await updateDoc(doc(window.db, "expenses", id), { deletedMonths });
+                    showToast("Mês/parcela desconsiderado com sucesso", "success");
+                } catch (err) {
+                    console.error("Erro ao remover parcela:", err);
+                    showToast("Erro ao atualizar no Firebase", "error");
+                }
             }
             closeDeleteModal();
-            triggerExpenseRender();
         }
+        window.confirmDeleteExpenseSingle = confirmDeleteExpenseSingle;
 
-        function confirmDeleteExpenseAll(id) {
-            window.expensesData = window.expensesData.filter(x => x.id !== id);
-            if (!window.firebaseConnected) localStorage.setItem('fincontrol_expenses', JSON.stringify(window.expensesData));
+        async function confirmDeleteExpenseAll(id) {
+            try {
+                await deleteDoc(doc(window.db, "expenses", id));
+                showToast("Registro excluído com sucesso!", "success");
+            } catch (err) {
+                console.error("Erro ao excluir registro:", err);
+                showToast("Erro ao excluir no Firebase", "error");
+            }
             closeDeleteModal();
-            triggerExpenseRender();
         }
+        window.confirmDeleteExpenseAll = confirmDeleteExpenseAll;
 
         function requestDeleteIncome(id) {
             const item = window.incomesData.find(x => x.id === id);
@@ -1449,7 +1546,7 @@
 
             if (isMulti) {
                 const labelType = item.type === 'installment' ? 'esta parcela' : 'este mês';
-                msg.innerText = `Este recebimento é ${item.type === 'installment' ? 'parcelado' : 'recorrente'}. Pretende eliminar apenas ${labelType} ou todas as parcelas/registo completo?`;
+                msg.innerText = `Este recebimento é ${item.type === 'installment' ? 'parcelado' : 'recorrente'}. Pretende eliminar apenas ${labelType} ou todas as parcelas/registro completo?`;
 
                 actions.innerHTML = `
                     <button onclick="confirmDeleteIncomeSingle('${id}')" class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors">Excluir Apenas Esta Parcela (${labelType})</button>
@@ -1457,7 +1554,7 @@
                     <button onclick="closeDeleteModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition-colors mt-1">Cancelar</button>
                 `;
             } else {
-                msg.innerText = "Tem a certeza que pretende eliminar este registo?";
+                msg.innerText = "Tem a certeza que pretende eliminar este registro?";
                 actions.innerHTML = `
                     <button onclick="confirmDeleteIncomeAll('${id}')" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition-colors">Excluir Registro</button>
                     <button onclick="closeDeleteModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition-colors">Cancelar</button>
@@ -1466,35 +1563,51 @@
 
             modal.classList.remove('hidden');
         }
+        window.requestDeleteIncome = requestDeleteIncome;
 
-        function confirmDeleteIncomeSingle(id) {
+        async function confirmDeleteIncomeSingle(id) {
             const item = window.incomesData.find(x => x.id === id);
             if (item) {
                 const yr = window.currentIncomeDate.getFullYear();
                 const mo = window.currentIncomeDate.getMonth();
                 const monthKey = `${yr}-${String(mo + 1).padStart(2, '0')}`;
 
-                if (!item.deletedMonths) item.deletedMonths = [];
-                if (!item.deletedMonths.includes(monthKey)) {
-                    item.deletedMonths.push(monthKey);
+                const deletedMonths = [...(item.deletedMonths || [])];
+                if (!deletedMonths.includes(monthKey)) {
+                    deletedMonths.push(monthKey);
                 }
 
-                if (!window.firebaseConnected) localStorage.setItem('fincontrol_incomes', JSON.stringify(window.incomesData));
+                try {
+                    await updateDoc(doc(window.db, "incomes", id), { deletedMonths });
+                    showToast("Mês/parcela desconsiderado com sucesso", "success");
+                } catch (err) {
+                    console.error("Erro ao remover parcela:", err);
+                    showToast("Erro ao atualizar no Firebase", "error");
+                }
             }
             closeDeleteModal();
-            triggerIncomeRender();
         }
+        window.confirmDeleteIncomeSingle = confirmDeleteIncomeSingle;
 
-        function confirmDeleteIncomeAll(id) {
-            window.incomesData = window.incomesData.filter(x => x.id !== id);
-            if (!window.firebaseConnected) localStorage.setItem('fincontrol_incomes', JSON.stringify(window.incomesData));
+        async function confirmDeleteIncomeAll(id) {
+            try {
+                await deleteDoc(doc(window.db, "incomes", id));
+                showToast("Registro excluído com sucesso!", "success");
+            } catch (err) {
+                console.error("Erro ao excluir registro:", err);
+                showToast("Erro ao excluir no Firebase", "error");
+            }
             closeDeleteModal();
-            triggerIncomeRender();
         }
+        window.confirmDeleteIncomeAll = confirmDeleteIncomeAll;
 
         function closeDeleteModal() {
             document.getElementById('modal-delete-confirm').classList.add('hidden');
         }
+        window.closeDeleteModal = closeDeleteModal;
+
+        // Initialize on DOMContentLoaded
+        window.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
