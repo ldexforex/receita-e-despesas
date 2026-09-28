@@ -28,7 +28,6 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Custom scrollbar for dark theme */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -74,6 +73,10 @@
                     <i class="fa-solid fa-arrow-up-right-from-square text-base"></i>
                     <span>Minhas Receitas</span>
                 </button>
+                <button id="nav-debts-btn" onclick="switchTab('debts')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                    <i class="fa-solid fa-address-book text-base"></i>
+                    <span>Lista de Dívidas</span>
+                </button>
             </nav>
         </div>
 
@@ -96,14 +99,12 @@
         <!-- TAB: DESPESAS                              -->
         <!-- ========================================== -->
         <section id="tab-expenses" class="space-y-6">
-            <!-- Header Section with Month Selector -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 p-5 rounded-2xl border border-slate-800">
                 <div>
                     <h2 class="text-xl font-bold text-white">Painel de Despesas</h2>
                     <p class="text-xs text-slate-400">Gerencie e controle os seus gastos mensais</p>
                 </div>
 
-                <!-- Month Picker & Action Button -->
                 <div class="flex items-center gap-3 flex-wrap">
                     <div class="flex items-center bg-slate-800/80 rounded-xl p-1 border border-slate-700/60">
                         <button onclick="changeExpenseMonth(-1)" class="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-700/50">
@@ -128,7 +129,6 @@
 
             <!-- Expense KPIs Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Total Expenses -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total do Mês</span>
@@ -140,7 +140,6 @@
                     <span id="kpi-expense-count-sub" class="text-xs text-slate-400 mt-1 block">0 lançamentos</span>
                 </div>
 
-                <!-- Total Paid -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Pago</span>
@@ -152,7 +151,6 @@
                     <span id="kpi-expense-paid-sub" class="text-xs text-slate-400 mt-1 block">0 quitadas</span>
                 </div>
 
-                <!-- Total Pending -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pendente a Pagar</span>
@@ -190,7 +188,6 @@
 
             <!-- Expense Table Filters & Table Container -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-                <!-- Filters Bar -->
                 <div class="p-4 border-b border-slate-800 flex flex-col sm:flex-row gap-3 justify-between items-center bg-slate-900/50">
                     <div class="relative w-full sm:w-72">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
@@ -198,14 +195,12 @@
                     </div>
 
                     <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <!-- Filter Status -->
                         <select id="filter-expense-status" onchange="triggerExpenseRender()" class="bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
                             <option value="ALL">Todos os Status</option>
                             <option value="paid">Pagas</option>
                             <option value="pending">Pendentes</option>
                         </select>
 
-                        <!-- Filter Category -->
                         <select id="filter-expense-category" onchange="triggerExpenseRender()" class="bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
                             <option value="ALL">Todas Categorias</option>
                             <option value="Alimentação">Alimentação</option>
@@ -220,7 +215,6 @@
                     </div>
                 </div>
 
-                <!-- Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
@@ -235,11 +229,9 @@
                             </tr>
                         </thead>
                         <tbody id="expenses-table-body" class="divide-y divide-slate-800/60">
-                            <!-- Rows injected via JS -->
                         </tbody>
                     </table>
 
-                    <!-- Empty state -->
                     <div id="expenses-empty-state" class="hidden p-8 text-center text-slate-500 text-sm">
                         <i class="fa-regular fa-folder-open text-3xl mb-2 block"></i>
                         Nenhuma despesa encontrada para este período ou filtro.
@@ -252,14 +244,12 @@
         <!-- TAB: RECEITAS                              -->
         <!-- ========================================== -->
         <section id="tab-incomes" class="space-y-6 hidden">
-            <!-- Header Section -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 p-5 rounded-2xl border border-slate-800">
                 <div>
                     <h2 class="text-xl font-bold text-white">Painel de Receitas</h2>
                     <p class="text-xs text-slate-400">Acompanhe seus faturamentos, mensalidades e entradas</p>
                 </div>
 
-                <!-- Month Picker & Actions -->
                 <div class="flex items-center gap-3 flex-wrap">
                     <div class="flex items-center bg-slate-800/80 rounded-xl p-1 border border-slate-700/60">
                         <button onclick="changeIncomeMonth(-1)" class="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-700/50">
@@ -284,7 +274,6 @@
 
             <!-- Income KPIs Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Total Forecast -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Projeção do Mês</span>
@@ -296,7 +285,6 @@
                     <span id="kpi-income-count-sub" class="text-xs text-slate-400 mt-1 block">0 receitas previstas</span>
                 </div>
 
-                <!-- Total Received -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Recebido</span>
@@ -308,7 +296,6 @@
                     <span id="kpi-income-received-sub" class="text-xs text-slate-400 mt-1 block">0 confirmadas</span>
                 </div>
 
-                <!-- Total Pending -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pendente</span>
@@ -346,7 +333,6 @@
 
             <!-- Income Table Filters & Table Container -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-                <!-- Filters Bar -->
                 <div class="p-4 border-b border-slate-800 flex flex-col sm:flex-row gap-3 justify-between items-center bg-slate-900/50">
                     <div class="relative w-full sm:w-72">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
@@ -354,19 +340,16 @@
                     </div>
 
                     <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <!-- Filter Status -->
                         <select id="filter-income-status" onchange="triggerIncomeRender()" class="bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500">
                             <option value="ALL">Todos os Status</option>
                             <option value="paid">Recebidos</option>
                             <option value="pending">Pendentes</option>
                         </select>
 
-                        <!-- Filter Dynamic Services -->
                         <select id="filter-income-service" onchange="triggerIncomeRender()" class="bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500">
                             <option value="ALL">Todos os Serviços</option>
                         </select>
 
-                        <!-- Manage Service Types Button -->
                         <button onclick="openServiceTypesModal()" class="px-3 py-2 text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl border border-slate-700 transition-colors flex items-center gap-1.5 shrink-0" title="Gerenciar Tipos de Serviços">
                             <i class="fa-solid fa-gear text-slate-400"></i>
                             <span>Serviços</span>
@@ -374,7 +357,6 @@
                     </div>
                 </div>
 
-                <!-- Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
@@ -389,14 +371,93 @@
                             </tr>
                         </thead>
                         <tbody id="incomes-table-body" class="divide-y divide-slate-800/60">
-                            <!-- Rows injected via JS -->
                         </tbody>
                     </table>
 
-                    <!-- Empty state -->
                     <div id="incomes-empty-state" class="hidden p-8 text-center text-slate-500 text-sm">
                         <i class="fa-regular fa-folder-open text-3xl mb-2 block"></i>
                         Nenhuma receita encontrada para este período ou filtro.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB: LISTA DE DÍVIDAS (QUEM DEVO / ME DEVEM)-->
+        <!-- ========================================== -->
+        <section id="tab-debts" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 p-5 rounded-2xl border border-slate-800">
+                <div>
+                    <h2 class="text-xl font-bold text-white">Lista de Dívidas e Empréstimos</h2>
+                    <p class="text-xs text-slate-400">Cadastre de forma simples quem você deve e quem lhe deve</p>
+                </div>
+
+                <button onclick="openDebtModal()" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Nova Dívida</span>
+                </button>
+            </div>
+
+            <!-- Debt KPIs Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-rose-400 uppercase tracking-wider">Pessoas que Eu Devo</span>
+                        <div class="p-2 bg-rose-500/10 text-rose-400 rounded-xl border border-rose-500/20">
+                            <i class="fa-solid fa-arrow-turn-down text-sm"></i>
+                        </div>
+                    </div>
+                    <div id="kpi-debt-i-owe" class="text-2xl font-black text-rose-400">R$ 0,00</div>
+                    <span id="kpi-debt-i-owe-sub" class="text-xs text-slate-400 mt-1 block">0 registros</span>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Pessoas que Me Devem</span>
+                        <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                            <i class="fa-solid fa-arrow-turn-up text-sm"></i>
+                        </div>
+                    </div>
+                    <div id="kpi-debt-they-owe" class="text-2xl font-black text-emerald-400">R$ 0,00</div>
+                    <span id="kpi-debt-they-owe-sub" class="text-xs text-slate-400 mt-1 block">0 registros</span>
+                </div>
+            </div>
+
+            <!-- Debt Table Filters & Table Container -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+                <div class="p-4 border-b border-slate-800 flex flex-col sm:flex-row gap-3 justify-between items-center bg-slate-900/50">
+                    <div class="relative w-full sm:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="text" id="search-debt-input" oninput="triggerDebtRender()" placeholder="Buscar por nome ou descrição..." class="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors">
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <select id="filter-debt-type" onchange="triggerDebtRender()" class="bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+                            <option value="ALL">Todos os Tipos</option>
+                            <option value="i_owe">Eu Devo</option>
+                            <option value="they_owe">Me Devem</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
+                            <tr>
+                                <th class="py-3 px-4">Nome / Pessoa</th>
+                                <th class="py-3 px-4">Tipo</th>
+                                <th class="py-3 px-4">Descrição da Dívida</th>
+                                <th class="py-3 px-4 text-right">Valor</th>
+                                <th class="py-3 px-4 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="debts-table-body" class="divide-y divide-slate-800/60">
+                        </tbody>
+                    </table>
+
+                    <div id="debts-empty-state" class="hidden p-8 text-center text-slate-500 text-sm">
+                        <i class="fa-regular fa-folder-open text-3xl mb-2 block"></i>
+                        Nenhuma dívida cadastrada.
                     </div>
                 </div>
             </div>
@@ -408,7 +469,7 @@
     <!-- MODAIS                                     -->
     <!-- ========================================== -->
 
-    <!-- 1. MODAL DESPESA (CRIAR/EDITAR) -->
+    <!-- 1. MODAL DESPESA -->
     <div id="modal-expense" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
             <div class="p-5 border-b border-slate-800 flex justify-between items-center">
@@ -447,18 +508,17 @@
                     </div>
                 </div>
 
-                <!-- Fields for Installments -->
                 <div id="expense-installment-fields" class="grid grid-cols-2 gap-3 p-3 bg-slate-800/40 rounded-xl border border-slate-700/50 hidden">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">Modo do Valor *</label>
-                        <select id="expense-installment-mode" onchange="recalcExpenseInstallments()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+                        <select id="expense-installment-mode" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
                             <option value="total">Informar Valor Total</option>
                             <option value="per_installment">Informar Valor da Parcela</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">Nº de Parcelas *</label>
-                        <input type="number" id="expense-installments-count" min="2" max="120" value="2" onchange="recalcExpenseInstallments()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+                        <input type="number" id="expense-installments-count" min="2" max="120" value="2" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
                     </div>
                 </div>
 
@@ -481,7 +541,7 @@
         </div>
     </div>
 
-    <!-- 2. MODAL RECEITA (CRIAR/EDITAR) -->
+    <!-- 2. MODAL RECEITA -->
     <div id="modal-income" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
             <div class="p-5 border-b border-slate-800 flex justify-between items-center">
@@ -500,7 +560,6 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">Tipo de Serviço *</label>
                         <select id="income-servicetype" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
-                            <!-- Options injected dynamically -->
                         </select>
                     </div>
                     <div>
@@ -513,7 +572,6 @@
                     </div>
                 </div>
 
-                <!-- Fields for Installments Incomes -->
                 <div id="income-installment-fields" class="grid grid-cols-2 gap-3 p-3 bg-slate-800/40 rounded-xl border border-slate-700/50 hidden">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">Modo do Valor *</label>
@@ -555,21 +613,61 @@
                 <button onclick="closeServiceTypesModal()" class="text-slate-400 hover:text-white p-1 rounded-lg"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="p-5 space-y-4">
-                <!-- Add new service type inline -->
                 <div class="flex gap-2">
                     <input type="text" id="new-servicetype-input" placeholder="Novo nome do serviço..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
                     <button onclick="addServiceType()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all">Adicionar</button>
                 </div>
-
-                <!-- List of current service types -->
                 <div class="max-h-60 overflow-y-auto space-y-1.5 pr-1" id="servicetypes-list">
-                    <!-- Injected via JS -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 4. MODAL CONFIRMAÇÃO EXCLUSÃO (SMART DELETE) -->
+    <!-- 4. MODAL DÍVIDA (NOVO / EDITAR) -->
+    <div id="modal-debt" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+            <div class="p-5 border-b border-slate-800 flex justify-between items-center">
+                <h3 id="modal-debt-title" class="text-base font-bold text-white">Nova Dívida</h3>
+                <button onclick="closeDebtModal()" class="text-slate-400 hover:text-white p-1 rounded-lg"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-debt" onsubmit="handleDebtSubmit(event)" class="p-5 space-y-4">
+                <input type="hidden" id="debt-id">
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nome da Pessoa *</label>
+                        <input type="text" id="debt-name" required placeholder="Ex: João da Silva..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Tipo de Relação *</label>
+                        <select id="debt-type" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+                            <option value="i_owe">Eu Devo</option>
+                            <option value="they_owe">Me Devem</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Valor (R$) *</label>
+                        <input type="number" id="debt-amount" step="0.01" min="0.01" required placeholder="0,00" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Descrição da Dívida *</label>
+                    <textarea id="debt-description" rows="3" required placeholder="Ex: Empréstimo para conserto do carro, compra parcelada..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+                </div>
+
+                <div class="pt-3 flex justify-end gap-3 border-t border-slate-800">
+                    <button type="button" onclick="closeDebtModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20 transition-all">Salvar Dívida</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. MODAL CONFIRMAÇÃO EXCLUSÃO -->
     <div id="modal-delete-confirm" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl p-6 text-center space-y-4">
             <div class="w-12 h-12 bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto border border-rose-500/20">
@@ -579,37 +677,30 @@
                 <h3 class="text-lg font-bold text-white mb-1">Confirmar Exclusão</h3>
                 <p id="delete-confirm-message" class="text-xs text-slate-400">Como deseja proceder com a exclusão deste item?</p>
             </div>
-
-            <!-- Options buttons injected dynamically depending on single/recurrent/installment -->
             <div id="delete-actions-container" class="flex flex-col gap-2 pt-2">
-                <!-- Buttons injected via JS -->
             </div>
         </div>
     </div>
 
-
     <!-- ========================================== -->
-    <!-- JAVASCRIPT LOGIC (FIREBASE INTEGRATED)     -->
+    <!-- JAVASCRIPT LOGIC                           -->
     <!-- ========================================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // APP STATE
         window.db = null;
         window.firebaseConnected = false;
 
-        // Current Selected Dates
         window.currentExpenseDate = new Date();
         window.currentIncomeDate = new Date();
 
-        // Data arrays
         window.expensesData = [];
         window.incomesData = [];
+        window.debtsData = [];
         window.serviceTypesData = [];
         window.serviceTypesDocs = [];
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBSVq96l8qLmT2m27EVjyOHKaeCTxy8TLg",
             authDomain: "receitasedespesas-26.firebaseapp.com",
@@ -619,7 +710,6 @@
             appId: "1:972861479913:web:21f5233d05c7f0fa474978"
         };
 
-        // Initialize App & Firestore
         async function initApp() {
             try {
                 const app = initializeApp(firebaseConfig);
@@ -681,9 +771,7 @@
         }
         window.showToast = showToast;
 
-        // --- FIRESTORE LISTENERS ---
         function setupFirestoreListeners() {
-            // Expenses Listener
             onSnapshot(collection(window.db, "expenses"), (snapshot) => {
                 window.expensesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 triggerExpenseRender();
@@ -692,7 +780,6 @@
                 showToast("Erro ao carregar despesas", "error");
             });
 
-            // Incomes Listener
             onSnapshot(collection(window.db, "incomes"), (snapshot) => {
                 window.incomesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 triggerIncomeRender();
@@ -701,7 +788,14 @@
                 showToast("Erro ao carregar receitas", "error");
             });
 
-            // Service Types Listener
+            onSnapshot(collection(window.db, "debts"), (snapshot) => {
+                window.debtsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                triggerDebtRender();
+            }, (error) => {
+                console.error("Erro no listener de dívidas:", error);
+                showToast("Erro ao carregar dívidas", "error");
+            });
+
             onSnapshot(collection(window.db, "servicetypes"), async (snapshot) => {
                 if (snapshot.empty) {
                     const defaults = ["Consultoria", "Desenvolvimento", "Manutenção", "Design", "Outros"];
@@ -722,28 +816,35 @@
             });
         }
 
-        // TAB SWITCHING
         function switchTab(tab) {
             const expTab = document.getElementById('tab-expenses');
             const incTab = document.getElementById('tab-incomes');
+            const debtTab = document.getElementById('tab-debts');
             const expBtn = document.getElementById('nav-expenses-btn');
             const incBtn = document.getElementById('nav-incomes-btn');
+            const debtBtn = document.getElementById('nav-debts-btn');
+
+            expTab.classList.add('hidden');
+            incTab.classList.add('hidden');
+            debtTab.classList.add('hidden');
+            expBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
+            incBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
+            debtBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
 
             if (tab === 'expenses') {
                 expTab.classList.remove('hidden');
-                incTab.classList.add('hidden');
                 expBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30";
-                incBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
-            } else {
+            } else if (tab === 'incomes') {
                 incTab.classList.remove('hidden');
-                expTab.classList.add('hidden');
                 incBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 bg-emerald-600 text-white shadow-lg shadow-emerald-600/30";
-                expBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
+            } else if (tab === 'debts') {
+                debtTab.classList.remove('hidden');
+                debtBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30";
+                triggerDebtRender();
             }
         }
         window.switchTab = switchTab;
 
-        // DATE / MONTH PICKER HELPERS
         function updateMonthDisplays() {
             const options = { month: 'long', year: 'numeric' };
             const expDisplay = document.getElementById('current-expense-month-display');
@@ -780,7 +881,6 @@
         }
         window.resetIncomeToCurrentMonth = resetIncomeToCurrentMonth;
 
-        // DATA FILTERING FOR SELECTED MONTH
         function getFilteredExpensesForMonth() {
             const yr = window.currentExpenseDate.getFullYear();
             const mo = window.currentExpenseDate.getMonth();
@@ -793,29 +893,37 @@
                     return false;
                 }
 
-                const d = new Date(item.dueDate + 'T00:00:00');
+                const parts = item.dueDate.split('-');
+                const startYr = parseInt(parts[0], 10);
+                const startMo = parseInt(parts[1], 10) - 1;
+                const startDate = new Date(startYr, startMo, 1);
+                const targetDate = new Date(yr, mo, 1);
                 
                 if (item.type === 'fixed') {
-                    return d <= new Date(yr, mo + 1, 0);
+                    return startDate <= targetDate;
                 } else if (item.type === 'installment') {
-                    const startYr = d.getFullYear();
-                    const startMo = d.getMonth();
                     const monthsDiff = (yr - startYr) * 12 + (mo - startMo);
                     return monthsDiff >= 0 && monthsDiff < item.installmentsCount;
                 } else {
-                    return d.getFullYear() === yr && d.getMonth() === mo;
+                    return startYr === yr && startMo === mo;
                 }
             }).map(item => {
                 if (item.type === 'installment') {
-                    const d = new Date(item.dueDate + 'T00:00:00');
-                    const monthsDiff = (yr - d.getFullYear()) * 12 + (mo - d.getMonth());
+                    const parts = item.dueDate.split('-');
+                    const startYr = parseInt(parts[0], 10);
+                    const startMo = parseInt(parts[1], 10) - 1;
+                    const monthsDiff = (yr - startYr) * 12 + (mo - startMo);
                     return { ...item, activeInstallmentNum: monthsDiff + 1 };
                 }
                 return item;
             });
 
-            // Ordenação em ordem crescente pela data de vencimento
-            filtered.sort((a, b) => new Date(a.dueDate + 'T00:00:00') - new Date(b.dueDate + 'T00:00:00'));
+            filtered.sort((a, b) => {
+                const dayA = a.dueDate ? parseInt(a.dueDate.split('-')[2], 10) : 0;
+                const dayB = b.dueDate ? parseInt(b.dueDate.split('-')[2], 10) : 0;
+                return dayA - dayB;
+            });
+
             return filtered;
         }
 
@@ -831,29 +939,37 @@
                     return false;
                 }
 
-                const d = new Date(item.dueDate + 'T00:00:00');
+                const parts = item.dueDate.split('-');
+                const startYr = parseInt(parts[0], 10);
+                const startMo = parseInt(parts[1], 10) - 1;
+                const startDate = new Date(startYr, startMo, 1);
+                const targetDate = new Date(yr, mo, 1);
                 
                 if (item.type === 'recurrent' || item.type === 'fixed') {
-                    return d <= new Date(yr, mo + 1, 0);
+                    return startDate <= targetDate;
                 } else if (item.type === 'installment') {
-                    const startYr = d.getFullYear();
-                    const startMo = d.getMonth();
                     const monthsDiff = (yr - startYr) * 12 + (mo - startMo);
                     return monthsDiff >= 0 && monthsDiff < item.installmentsCount;
                 } else {
-                    return d.getFullYear() === yr && d.getMonth() === mo;
+                    return startYr === yr && startMo === mo;
                 }
             }).map(item => {
                 if (item.type === 'installment') {
-                    const d = new Date(item.dueDate + 'T00:00:00');
-                    const monthsDiff = (yr - d.getFullYear()) * 12 + (mo - d.getMonth());
+                    const parts = item.dueDate.split('-');
+                    const startYr = parseInt(parts[0], 10);
+                    const startMo = parseInt(parts[1], 10) - 1;
+                    const monthsDiff = (yr - startYr) * 12 + (mo - startMo);
                     return { ...item, activeInstallmentNum: monthsDiff + 1 };
                 }
                 return item;
             });
 
-            // Ordenação em ordem crescente pela data de vencimento/recebimento
-            filtered.sort((a, b) => new Date(a.dueDate + 'T00:00:00') - new Date(b.dueDate + 'T00:00:00'));
+            filtered.sort((a, b) => {
+                const dayA = a.dueDate ? parseInt(a.dueDate.split('-')[2], 10) : 0;
+                const dayB = b.dueDate ? parseInt(b.dueDate.split('-')[2], 10) : 0;
+                return dayA - dayB;
+            });
+
             return filtered;
         }
 
@@ -867,7 +983,11 @@
         }
         window.triggerIncomeRender = triggerIncomeRender;
 
-        // RENDER EXPENSE MODULE
+        function triggerDebtRender() {
+            renderDebtModule(window.debtsData || []);
+        }
+        window.triggerDebtRender = triggerDebtRender;
+
         function renderExpenseModule(expenses) {
             const selectedYr = window.currentExpenseDate.getFullYear();
             const selectedMo = window.currentExpenseDate.getMonth();
@@ -934,15 +1054,25 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/40 transition-colors";
 
-                let typeLabel = "Único";
-                if (item.type === 'fixed') typeLabel = "Fixo";
-                else if (item.type === 'installment') typeLabel = `Parcela ${item.activeInstallmentNum}/${item.installmentsCount}`;
+                let typeLabel = '<span class="text-slate-400">Único</span>';
+                if (item.type === 'fixed') {
+                    typeLabel = '<span class="text-slate-400">Fixo</span>';
+                } else if (item.type === 'installment') {
+                    typeLabel = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/25 font-semibold text-xs shadow-sm"><i class="fa-solid fa-layer-group text-[10px]"></i> Parcela ${item.activeInstallmentNum}/${item.installmentsCount}</span>`;
+                }
+
+                let displayDate = item.dueDate;
+                if (item.type === 'installment' && item.activeInstallmentNum) {
+                    const parts = item.dueDate.split('-');
+                    const day = parts[2] || '01';
+                    displayDate = `${selectedYr}-${String(selectedMo + 1).padStart(2, '0')}-${day}`;
+                }
 
                 tr.innerHTML = `
                     <td class="py-3.5 px-4 font-medium text-white">${item.title}</td>
                     <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs">${item.category}</span></td>
-                    <td class="py-3.5 px-4 text-xs text-slate-400">${typeLabel}</td>
-                    <td class="py-3.5 px-4 text-xs text-slate-400">${item.dueDate ? item.dueDate.split('-').reverse().join('/') : '-'}</td>
+                    <td class="py-3.5 px-4 text-xs">${typeLabel}</td>
+                    <td class="py-3.5 px-4 text-xs text-slate-400">${displayDate ? displayDate.split('-').reverse().join('/') : '-'}</td>
                     <td class="py-3.5 px-4 text-right font-bold text-white">${val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                     <td class="py-3.5 px-4 text-center">
                         <button onclick="toggleExpenseStatus('${item.id}')" class="px-3 py-1 rounded-full text-xs font-semibold transition-all ${isPaid ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
@@ -1003,7 +1133,6 @@
             }
         }
 
-        // RENDER INCOME MODULE
         function renderIncomeModule(incomes) {
             const selectedYr = window.currentIncomeDate.getFullYear();
             const selectedMo = window.currentIncomeDate.getMonth();
@@ -1030,7 +1159,7 @@
 
             document.getElementById('kpi-income-count-sub').innerText = `${incomes.length} recebimentos previstos`;
             document.getElementById('kpi-income-received-sub').innerText = `${receivedCount} confirmados`;
-            document.getElementById('kpi-income-pending-sub').innerText = `${pendingCount} pendentes`;
+            document.getElementById('kpi-income-pending-sub').innerText = `${pendingCount} a receber`;
 
             renderIncomeTable(incomes);
             updateIncomeCharts(received, pending, incomes);
@@ -1070,15 +1199,25 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/40 transition-colors";
 
-                let typeLabel = "Único";
-                if (item.type === 'fixed' || item.type === 'recurrent') typeLabel = "Recorrente";
-                else if (item.type === 'installment') typeLabel = `Parcela ${item.activeInstallmentNum}/${item.installmentsCount}`;
+                let typeLabel = '<span class="text-slate-400">Único</span>';
+                if (item.type === 'fixed' || item.type === 'recurrent') {
+                    typeLabel = '<span class="text-slate-400">Recorrente</span>';
+                } else if (item.type === 'installment') {
+                    typeLabel = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-semibold text-xs shadow-sm"><i class="fa-solid fa-layer-group text-[10px]"></i> Parcela ${item.activeInstallmentNum}/${item.installmentsCount}</span>`;
+                }
+
+                let displayDate = item.dueDate;
+                if (item.type === 'installment' && item.activeInstallmentNum) {
+                    const parts = item.dueDate.split('-');
+                    const day = parts[2] || '01';
+                    displayDate = `${selectedYr}-${String(selectedMo + 1).padStart(2, '0')}-${day}`;
+                }
 
                 tr.innerHTML = `
                     <td class="py-3.5 px-4 font-medium text-white">${item.title}</td>
                     <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs border border-emerald-500/20">${item.serviceType || 'Geral'}</span></td>
-                    <td class="py-3.5 px-4 text-xs text-slate-400">${typeLabel}</td>
-                    <td class="py-3.5 px-4 text-xs text-slate-400">${item.dueDate ? item.dueDate.split('-').reverse().join('/') : '-'}</td>
+                    <td class="py-3.5 px-4 text-xs">${typeLabel}</td>
+                    <td class="py-3.5 px-4 text-xs text-slate-400">${displayDate ? displayDate.split('-').reverse().join('/') : '-'}</td>
                     <td class="py-3.5 px-4 text-right font-bold text-white">${val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                     <td class="py-3.5 px-4 text-center">
                         <button onclick="toggleIncomeStatus('${item.id}')" class="px-3 py-1 rounded-full text-xs font-semibold transition-all ${isPaid ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
@@ -1140,7 +1279,75 @@
             }
         }
 
-        // SERVICE TYPES MANAGEMENT
+        function renderDebtModule(debts) {
+            let iOweTotal = 0;
+            let theyOweTotal = 0;
+            let iOweCount = 0;
+            let theyOweCount = 0;
+
+            debts.forEach(d => {
+                const val = parseFloat(d.amount) || 0;
+                if (d.type === 'i_owe') {
+                    iOweTotal += val;
+                    iOweCount++;
+                } else {
+                    theyOweTotal += val;
+                    theyOweCount++;
+                }
+            });
+
+            document.getElementById('kpi-debt-i-owe').innerText = iOweTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('kpi-debt-they-owe').innerText = theyOweTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('kpi-debt-i-owe-sub').innerText = `${iOweCount} registros`;
+            document.getElementById('kpi-debt-they-owe-sub').innerText = `${theyOweCount} registros`;
+
+            renderDebtTable(debts);
+        }
+
+        function renderDebtTable(debts) {
+            const tbody = document.getElementById('debts-table-body');
+            const emptyState = document.getElementById('debts-empty-state');
+            const searchVal = (document.getElementById('search-debt-input').value || '').toLowerCase();
+            const typeFilter = document.getElementById('filter-debt-type').value;
+
+            tbody.innerHTML = '';
+
+            const filtered = debts.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(searchVal) || item.description.toLowerCase().includes(searchVal);
+                const matchesType = typeFilter === 'ALL' || item.type === typeFilter;
+                return matchesSearch && matchesType;
+            });
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            filtered.forEach(item => {
+                const val = parseFloat(item.amount) || 0;
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition-colors";
+
+                const isIOwe = item.type === 'i_owe';
+                const typeBadge = isIOwe 
+                    ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/25 font-semibold text-xs shadow-sm"><i class="fa-solid fa-arrow-turn-down text-[10px]"></i> Eu Devo</span>'
+                    : '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-semibold text-xs shadow-sm"><i class="fa-solid fa-arrow-turn-up text-[10px]"></i> Me Devem</span>';
+
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 font-medium text-white">${item.name}</td>
+                    <td class="py-3.5 px-4 text-xs">${typeBadge}</td>
+                    <td class="py-3.5 px-4 text-xs text-slate-300 max-w-xs truncate">${item.description}</td>
+                    <td class="py-3.5 px-4 text-right font-bold ${isIOwe ? 'text-rose-400' : 'text-emerald-400'}">${val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td class="py-3.5 px-4 text-center space-x-2">
+                        <button onclick="openDebtModal('${item.id}')" class="text-slate-400 hover:text-indigo-400 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="requestDeleteDebt('${item.id}')" class="text-slate-400 hover:text-rose-400 p-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
         function populateServiceTypeDropdowns() {
             const filterSelect = document.getElementById('filter-income-service');
             const formSelect = document.getElementById('income-servicetype');
@@ -1215,7 +1422,6 @@
         }
         window.removeServiceType = removeServiceType;
 
-        // EXPENSE MODAL & FORM HANDLERS
         function openExpenseModal(itemOrId = null) {
             const modal = document.getElementById('modal-expense');
             const title = document.getElementById('modal-expense-title');
@@ -1263,9 +1469,6 @@
             }
         }
         window.toggleExpenseTypeFields = toggleExpenseTypeFields;
-
-        function recalcExpenseInstallments() {}
-        window.recalcExpenseInstallments = recalcExpenseInstallments;
 
         async function handleExpenseSubmit(e) {
             e.preventDefault();
@@ -1320,7 +1523,6 @@
         }
         window.handleExpenseSubmit = handleExpenseSubmit;
 
-        // INCOME MODAL & FORM HANDLERS
         function openIncomeModal(itemOrId = null) {
             const modal = document.getElementById('modal-income');
             const title = document.getElementById('modal-income-title');
@@ -1423,7 +1625,69 @@
         }
         window.handleIncomeSubmit = handleIncomeSubmit;
 
-        // TOGGLE STATUS (PAID / PENDING)
+        function openDebtModal(itemOrId = null) {
+            const modal = document.getElementById('modal-debt');
+            const title = document.getElementById('modal-debt-title');
+
+            let item = itemOrId;
+            if (typeof itemOrId === 'string') {
+                item = window.debtsData.find(x => x.id === itemOrId);
+            }
+
+            if (item) {
+                title.innerText = "Editar Dívida";
+                document.getElementById('debt-id').value = item.id;
+                document.getElementById('debt-name').value = item.name;
+                document.getElementById('debt-type').value = item.type;
+                document.getElementById('debt-amount').value = item.amount;
+                document.getElementById('debt-description').value = item.description;
+            } else {
+                title.innerText = "Nova Dívida";
+                document.getElementById('form-debt').reset();
+                document.getElementById('debt-id').value = '';
+            }
+
+            modal.classList.remove('hidden');
+        }
+        window.openDebtModal = openDebtModal;
+
+        function closeDebtModal() {
+            document.getElementById('modal-debt').classList.add('hidden');
+        }
+        window.closeDebtModal = closeDebtModal;
+
+        async function handleDebtSubmit(e) {
+            e.preventDefault();
+            try {
+                const id = document.getElementById('debt-id').value;
+                const name = document.getElementById('debt-name').value;
+                const type = document.getElementById('debt-type').value;
+                const amount = parseFloat(document.getElementById('debt-amount').value);
+                const description = document.getElementById('debt-description').value;
+
+                const payload = {
+                    name,
+                    type,
+                    amount,
+                    description
+                };
+
+                if (id) {
+                    await updateDoc(doc(window.db, "debts", id), payload);
+                    showToast("Dívida atualizada com sucesso!", "success");
+                } else {
+                    await addDoc(collection(window.db, "debts"), payload);
+                    showToast("Dívida salva no Firebase!", "success");
+                }
+
+                closeDebtModal();
+            } catch (err) {
+                console.error("Erro ao salvar dívida:", err);
+                showToast("Erro ao salvar no Firebase", "error");
+            }
+        }
+        window.handleDebtSubmit = handleDebtSubmit;
+
         async function toggleExpenseStatus(id) {
             const item = window.expensesData.find(x => x.id === id);
             if (!item) return;
@@ -1474,7 +1738,6 @@
         }
         window.toggleIncomeStatus = toggleIncomeStatus;
 
-        // DELETE HANDLERS & MODAL (SMART DELETE)
         function requestDeleteExpense(id) {
             const item = window.expensesData.find(x => x.id === id);
             if (!item) return;
@@ -1609,12 +1872,38 @@
         }
         window.confirmDeleteIncomeAll = confirmDeleteIncomeAll;
 
+        function requestDeleteDebt(id) {
+            const modal = document.getElementById('modal-delete-confirm');
+            const msg = document.getElementById('delete-confirm-message');
+            const actions = document.getElementById('delete-actions-container');
+
+            msg.innerText = "Tem a certeza que pretende eliminar este registro de dívida?";
+            actions.innerHTML = `
+                <button onclick="confirmDeleteDebt('${id}')" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition-colors">Excluir Registro</button>
+                <button onclick="closeDeleteModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition-colors">Cancelar</button>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+        window.requestDeleteDebt = requestDeleteDebt;
+
+        async function confirmDeleteDebt(id) {
+            try {
+                await deleteDoc(doc(window.db, "debts", id));
+                showToast("Dívida excluída com sucesso!", "success");
+            } catch (err) {
+                console.error("Erro ao excluir dívida:", err);
+                showToast("Erro ao excluir no Firebase", "error");
+            }
+            closeDeleteModal();
+        }
+        window.confirmDeleteDebt = confirmDeleteDebt;
+
         function closeDeleteModal() {
             document.getElementById('modal-delete-confirm').classList.add('hidden');
         }
         window.closeDeleteModal = closeDeleteModal;
 
-        // Initialize on DOMContentLoaded
         window.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
