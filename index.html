@@ -786,7 +786,7 @@
             const mo = window.currentExpenseDate.getMonth();
             const monthKey = `${yr}-${String(mo + 1).padStart(2, '0')}`;
 
-            return (window.expensesData || []).filter(item => {
+            const filtered = (window.expensesData || []).filter(item => {
                 if (!item.dueDate) return false;
                 
                 if (item.deletedMonths && item.deletedMonths.includes(monthKey)) {
@@ -813,6 +813,10 @@
                 }
                 return item;
             });
+
+            // Ordenação em ordem crescente pela data de vencimento
+            filtered.sort((a, b) => new Date(a.dueDate + 'T00:00:00') - new Date(b.dueDate + 'T00:00:00'));
+            return filtered;
         }
 
         function getFilteredIncomesForMonth() {
@@ -820,7 +824,7 @@
             const mo = window.currentIncomeDate.getMonth();
             const monthKey = `${yr}-${String(mo + 1).padStart(2, '0')}`;
 
-            return (window.incomesData || []).filter(item => {
+            const filtered = (window.incomesData || []).filter(item => {
                 if (!item.dueDate) return false;
 
                 if (item.deletedMonths && item.deletedMonths.includes(monthKey)) {
@@ -847,6 +851,10 @@
                 }
                 return item;
             });
+
+            // Ordenação em ordem crescente pela data de vencimento/recebimento
+            filtered.sort((a, b) => new Date(a.dueDate + 'T00:00:00') - new Date(b.dueDate + 'T00:00:00'));
+            return filtered;
         }
 
         function triggerExpenseRender() {
